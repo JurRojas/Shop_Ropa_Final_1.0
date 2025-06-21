@@ -11,7 +11,7 @@ from app.routes import productos, pedidos, pagos
 def create_tables():
     Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="API Escolar Simulada")
+app = FastAPI(title="API Tienda de ropa")
 
 # Incluir routers
 app.include_router(productos.router)
@@ -21,3 +21,8 @@ app.include_router(pagos.router)
 @app.on_event("startup")
 def on_startup():
     create_tables()
+
+@app.get("/", tags=["Inicio"])
+def read_root():
+    """Raíz de la API."""
+    return {"message": "Bienvenido a la API de la tienda :)"}
