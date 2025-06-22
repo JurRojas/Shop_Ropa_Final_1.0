@@ -7,8 +7,11 @@ from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.models.cliente import Cliente, ClienteCreate, ClienteOut
 from typing import List
+from passlib.context import CryptContext
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
     db = SessionLocal()
@@ -20,7 +23,8 @@ def get_db():
 @router.post("/", response_model=ClienteOut)
 def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
     """Crea un nuevo cliente."""
-    db_cliente = Cliente(**cliente.dict())
+    hashed_password = pwd_context.hash(cliente.contrasena)
+    db_cliente = Cliente(nombre=cliente.nombre, direccion=cliente.direccion, contrasena=hashed_password)
     db.add(db_cliente)
     db.commit()
     db.refresh(db_cliente)

@@ -7,8 +7,11 @@ from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.models.repartidor import Repartidor, RepartidorCreate, RepartidorOut
 from typing import List
+from passlib.context import CryptContext
 
 router = APIRouter(prefix="/repartidores", tags=["Repartidores"])
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
     db = SessionLocal()
@@ -20,7 +23,8 @@ def get_db():
 @router.post("/", response_model=RepartidorOut)
 def crear_repartidor(repartidor: RepartidorCreate, db: Session = Depends(get_db)):
     """Crea un nuevo repartidor."""
-    db_repartidor = Repartidor(**repartidor.dict())
+    hashed_password = pwd_context.hash(repartidor.contrasena)
+    db_repartidor = Repartidor(nombre=repartidor.nombre, telefono=repartidor.telefono, contrasena=hashed_password)
     db.add(db_repartidor)
     db.commit()
     db.refresh(db_repartidor)

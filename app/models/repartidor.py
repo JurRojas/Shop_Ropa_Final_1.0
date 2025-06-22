@@ -11,10 +11,12 @@ class Repartidor(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     telefono = Column(String(20), nullable=False)
+    contrasena = Column(String(128), nullable=False)
 
 class RepartidorCreate(BaseModel):
     nombre: str = Field(..., min_length=2, max_length=100, description="Nombre del repartidor")
     telefono: str = Field(..., min_length=10, max_length=10, description="Teléfono, 10 dígitos")
+    contrasena: str = Field(..., min_length=6, max_length=128, description="Contraseña del repartidor")
 
 class RepartidorOut(BaseModel):
     id: int
