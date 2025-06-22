@@ -2,7 +2,7 @@
 """
 Rutas para gestión de pedidos.
 """
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.models.pedido import Pedido, PedidoCreate, PedidoOut, DetallePedido, DetallePedidoCreate
@@ -20,7 +20,7 @@ def get_db():
 
 @router.post("/", response_model=PedidoOut)
 def crear_pedido(pedido: PedidoCreate, db: Session = Depends(get_db)):
-    """Crea un nuevo pedido para un cliente."""
+    """Crea un nuevo pedido para un cliente. Valida body con Pydantic."""
     if not cliente_existe(db, pedido.cliente_id):
         raise HTTPException(status_code=404, detail="Cliente no existe")
     db_pedido = Pedido(cliente_id=pedido.cliente_id, estado="pendiente", total=pedido.total)
@@ -35,18 +35,40 @@ def crear_pedido(pedido: PedidoCreate, db: Session = Depends(get_db)):
     return db_pedido
 
 @router.get("/cliente/{id}", response_model=List[PedidoOut])
-def pedidos_cliente(id: int, db: Session = Depends(get_db)):
-    """Lista pedidos de un cliente."""
-    return db.query(Pedido).filter(Pedido.cliente_id == id).all()
+def pedidos_cliente(
+    id: int = Path(..., gt=0, description="ID del cliente válido"),
+    fecha_inicio: str = Query(None, description="Fecha de inicio en formato YYYY-MM-DD"),
+    fecha_fin: str = Query(None, description="Fecha de fin en formato YYYY-MM-DD"),
+    db: Session = Depends(get_db)
+):
+    """Lista pedidos de un cliente, con filtros opcionales por fecha."""
+    query = db.query(Pedido).filter(Pedido.cliente_id == id)
+    # Filtros de fecha opcionales
+    if fecha_inicio:
+        query = query.filter(Pedido.fecha >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(Pedido.fecha <= fecha_fin)
+    return query.all()
 
 @router.get("/repartidor/{id}", response_model=List[PedidoOut])
-def pedidos_repartidor(id: int, db: Session = Depends(get_db)):
-    """Lista pedidos asignados a un repartidor."""
-    return db.query(Pedido).filter(Pedido.repartidor_id == id).all()
+def pedidos_repartidor(
+    id: int = Path(..., gt=0, description="ID del repartidor válido"),
+    estado: str = Query(None, regex="^(pendiente|en reparto|entregado)$", description="Filtrar por estado del pedido"),
+    db: Session = Depends(get_db)
+):
+    """Lista pedidos asignados a un repartidor, con filtro opcional por estado."""
+    query = db.query(Pedido).filter(Pedido.repartidor_id == id)
+    if estado:
+        query = query.filter(Pedido.estado == estado)
+    return query.all()
 
 @router.put("/{id}/estado")
-def actualizar_estado(id: int, estado: str, db: Session = Depends(get_db)):
-    """Actualiza el estado de un pedido (repartidor)."""
+def actualizar_estado(
+    id: int = Path(..., gt=0, description="ID del pedido válido"),
+    estado: str = Query(..., regex="^(pendiente|en reparto|entregado)$", description="Nuevo estado del pedido"),
+    db: Session = Depends(get_db)
+):
+    """Actualiza el estado de un pedido (repartidor). Valida path y query."""
     pedido = db.query(Pedido).filter(Pedido.id == id).first()
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no existe")
@@ -55,8 +77,12 @@ def actualizar_estado(id: int, estado: str, db: Session = Depends(get_db)):
     return {"msg": "Estado actualizado"}
 
 @router.put("/{id}/asignar")
-def asignar_repartidor(id: int, repartidor_id: int, db: Session = Depends(get_db)):
-    """Asigna un repartidor a un pedido (propietario)."""
+def asignar_repartidor(
+    id: int = Path(..., gt=0, description="ID del pedido válido"),
+    repartidor_id: int = Query(..., gt=0, description="ID del repartidor válido"),
+    db: Session = Depends(get_db)
+):
+    """Asigna un repartidor a un pedido (propietario). Valida path y query."""
     pedido = db.query(Pedido).filter(Pedido.id == id).first()
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no existe")
@@ -69,6 +95,12 @@ def asignar_repartidor(id: int, repartidor_id: int, db: Session = Depends(get_db
     return {"msg": "Repartidor asignado"}
 
 @router.get("/", response_model=List[PedidoOut])
-def listar_pedidos(db: Session = Depends(get_db)):
-    """Lista todos los pedidos (propietario)."""
-    return db.query(Pedido).all()
+def listar_pedidos(
+    estado: str = Query(None, regex="^(pendiente|en reparto|entregado)$", description="Filtrar por estado de pedido"),
+    db: Session = Depends(get_db)
+):
+    """Lista todos los pedidos (propietario), con filtro opcional por estado."""
+    query = db.query(Pedido)
+    if estado:
+        query = query.filter(Pedido.estado == estado)
+    return query.all()

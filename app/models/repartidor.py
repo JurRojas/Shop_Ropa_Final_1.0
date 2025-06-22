@@ -4,7 +4,7 @@ Modelo SQLAlchemy y esquema Pydantic para repartidores.
 """
 from sqlalchemy import Column, Integer, String
 from app.db.database import Base
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class Repartidor(Base):
     __tablename__ = "repartidores"
@@ -13,8 +13,8 @@ class Repartidor(Base):
     telefono = Column(String(20), nullable=False)
 
 class RepartidorCreate(BaseModel):
-    nombre: str
-    telefono: str
+    nombre: str = Field(..., min_length=2, max_length=100, description="Nombre del repartidor")
+    telefono: str = Field(..., min_length=10, max_length=10, description="Teléfono, 10 dígitos")
 
 class RepartidorOut(BaseModel):
     id: int

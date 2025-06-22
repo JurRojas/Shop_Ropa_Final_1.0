@@ -4,7 +4,7 @@ Modelo SQLAlchemy y esquema Pydantic para clientes.
 """
 from sqlalchemy import Column, Integer, String
 from app.db.database import Base
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -13,8 +13,8 @@ class Cliente(Base):
     direccion = Column(String(255), nullable=False)
 
 class ClienteCreate(BaseModel):
-    nombre: str
-    direccion: str
+    nombre: str = Field(..., min_length=2, max_length=100, description="Nombre del cliente")
+    direccion: str = Field(..., min_length=5, max_length=255, description="Dirección del cliente")
 
 class ClienteOut(BaseModel):
     id: int

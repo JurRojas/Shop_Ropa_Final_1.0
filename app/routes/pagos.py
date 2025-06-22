@@ -2,7 +2,7 @@
 """
 Rutas para simular pagos.
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.models.pago import Pago, PagoCreate, PagoOut
@@ -20,7 +20,7 @@ def get_db():
 
 @router.post("/", response_model=PagoOut)
 def simular_pago(pago: PagoCreate, db: Session = Depends(get_db)):
-    """Simula un pago para un pedido."""
+    """Simula un pago para un pedido. Valida body con Pydantic."""
     if not pedido_existe(db, pago.pedido_id):
         raise HTTPException(status_code=404, detail="Pedido no existe")
     db_pago = Pago(pedido_id=pago.pedido_id)

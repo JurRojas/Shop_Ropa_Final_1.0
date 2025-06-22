@@ -5,7 +5,7 @@ Modelo SQLAlchemy y esquemas Pydantic para pedidos y detalle_pedido.
 from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.db.database import Base
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class Pedido(Base):
@@ -27,13 +27,13 @@ class DetallePedido(Base):
     pedido = relationship("Pedido", back_populates="detalles")
 
 class DetallePedidoCreate(BaseModel):
-    producto_id: int
-    cantidad: int
+    producto_id: int = Field(..., gt=0, description="ID de producto válido")
+    cantidad: int = Field(..., gt=0, description="Cantidad mayor a 0")
 
 class PedidoCreate(BaseModel):
-    cliente_id: int
-    detalles: list[DetallePedidoCreate]
-    total: float
+    cliente_id: int = Field(..., gt=0, description="ID de cliente válido")
+    detalles: list[DetallePedidoCreate] = Field(..., min_items=1, description="Lista de detalles, al menos uno")
+    total: float = Field(..., gt=0, description="Total mayor a 0")
 
 class PedidoOut(BaseModel):
     id: int

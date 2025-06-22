@@ -5,7 +5,7 @@ Inicializa la app y la base de datos.
 """
 from fastapi import FastAPI
 from app.db.database import engine, Base
-from app.routes import productos, pedidos, pagos
+from app.routes import productos, pedidos, pagos, clientes, repartidores
 
 # Crear tablas automáticamente si no existen
 def create_tables():
@@ -17,6 +17,8 @@ app = FastAPI(title="API Tienda de ropa")
 app.include_router(productos.router)
 app.include_router(pedidos.router)
 app.include_router(pagos.router)
+app.include_router(clientes.router)
+app.include_router(repartidores.router)
 
 @app.on_event("startup")
 def on_startup():

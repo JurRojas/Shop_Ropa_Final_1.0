@@ -4,7 +4,7 @@ Modelo SQLAlchemy y esquema Pydantic para pagos simulados.
 """
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
 from app.db.database import Base
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class Pago(Base):
@@ -15,7 +15,7 @@ class Pago(Base):
     estado_pago_simulado = Column(String(50), default="exitoso")
 
 class PagoCreate(BaseModel):
-    pedido_id: int
+    pedido_id: int = Field(..., gt=0, description="ID de pedido válido")
 
 class PagoOut(BaseModel):
     id: int
