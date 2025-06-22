@@ -4,18 +4,11 @@ Rutas para gestión de productos.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
+from app.dependencies import get_db
 from app.models.producto import Producto, ProductoCreate, ProductoOut
 from typing import List
 
 router = APIRouter(prefix="/productos", tags=["Productos"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/", response_model=List[ProductoOut])
 def listar_productos(

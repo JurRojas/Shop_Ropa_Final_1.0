@@ -4,19 +4,12 @@ Rutas para gestión de pedidos.
 """
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
+from app.dependencies import get_db
 from app.models.pedido import Pedido, PedidoCreate, PedidoOut, DetallePedido, DetallePedidoCreate
 from app.db.operaciones import cliente_existe, repartidor_existe, pedido_existe
 from typing import List
 
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/", response_model=PedidoOut)
 def crear_pedido(pedido: PedidoCreate, db: Session = Depends(get_db)):

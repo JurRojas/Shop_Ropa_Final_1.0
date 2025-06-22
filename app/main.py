@@ -4,6 +4,7 @@ Punto de entrada de la aplicación FastAPI.
 Inicializa la app y la base de datos.
 """
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine, Base
 from app.routes import productos, pedidos, pagos, clientes, repartidores, login, administradores
 
@@ -21,6 +22,15 @@ app.include_router(clientes.router)
 app.include_router(repartidores.router)
 app.include_router(login.router)
 app.include_router(administradores.router)
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Puedes restringir a ['http://localhost:3000'] o el dominio de tu app Flutter
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def on_startup():

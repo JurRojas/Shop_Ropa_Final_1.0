@@ -4,27 +4,20 @@ Rutas para gestión de administradores.
 """
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
+from app.dependencies import get_db
 from app.models.administrador import Administrador, AdministradorCreate, AdministradorOut
-from passlib.context import CryptContext
+from app.security import hash_password
 from typing import List
 
 router = APIRouter(prefix="/administradores", tags=["Administradores"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/", response_model=AdministradorOut)
 def crear_administrador(admin: AdministradorCreate, db: Session = Depends(get_db)):
     """Crea un nuevo administrador."""
-    hashed_password = pwd_context.hash(admin.contrasena)
-    db_admin = Administrador(nombre=admin.nombre, contrasena=hashed_password)
+    if db.query(Administrador).filter(Administrador.email == admin.email).first():
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+    hashed_password = hash_password(admin.contrasena)
+    db_admin = Administrador(nombre=admin.nombre, email=admin.email, contrasena=hashed_password)
     db.add(db_admin)
     db.commit()
     db.refresh(db_admin)

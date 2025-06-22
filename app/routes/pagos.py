@@ -2,21 +2,14 @@
 """
 Rutas para simular pagos.
 """
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
+from app.dependencies import get_db
 from app.models.pago import Pago, PagoCreate, PagoOut
 from app.db.operaciones import pedido_existe
 from typing import List
 
 router = APIRouter(prefix="/pagos", tags=["Pagos"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/", response_model=PagoOut)
 def simular_pago(pago: PagoCreate, db: Session = Depends(get_db)):
