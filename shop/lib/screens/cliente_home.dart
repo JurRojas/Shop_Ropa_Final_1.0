@@ -28,7 +28,7 @@ class _ClienteHomeState extends State<ClienteHome> {
 
   void _cargarProductos() async {
     try {
-      final productos = await _productoService.fetchProductos();
+      final productos = await _productoService.fetchProductos(context);
       setState(() {
         _productos = productos;
         _productosFiltrados = productos;
@@ -54,7 +54,13 @@ class _ClienteHomeState extends State<ClienteHome> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3FF),
       appBar: AppBar(
-        title: Text('Catálogo de Productos', style: TextStyle(color: Colors.white)),
+        title: Row(
+          children: [
+            const Icon(Icons.storefront, color: Colors.white, size: 28),
+            const SizedBox(width: 10),
+            const Text('Catálogo de Productos', style: TextStyle(color: Colors.white)),
+          ],
+        ),
         backgroundColor: Colors.indigo,
         elevation: 0,
       ),
@@ -117,62 +123,133 @@ class _ClienteHomeState extends State<ClienteHome> {
           ],
         ),
       ),
-      body: _cargando
-          ? Center(child: CircularProgressIndicator(color: Colors.indigo))
-          : Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo,
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF5F3FF), Color(0xFFE0E7FF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
+              decoration: BoxDecoration(
+                color: Colors.indigo,
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.indigo.withOpacity(0.12),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text('¡Bienvenido a LuxB!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-                      SizedBox(height: 8),
-                      Text('Explora y encuentra tu estilo', style: TextStyle(fontSize: 16, color: Colors.white70)),
-                      SizedBox(height: 16),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar producto',
-                          prefixIcon: Icon(Icons.search, color: Colors.indigo),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                        ),
-                        onChanged: _buscar,
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 28,
+                        child: Icon(Icons.account_circle, size: 44, color: Colors.indigo.shade400),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('¡Bienvenido a LuxB!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                          const SizedBox(height: 4),
+                          Text('Explora y encuentra tu estilo', style: TextStyle(fontSize: 15, color: Colors.white70)),
+                        ],
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: _productosFiltrados.isEmpty
-                      ? Center(child: Text('No hay productos', style: TextStyle(color: Colors.indigo, fontSize: 18)))
-                      : ListView.builder(
-                          padding: EdgeInsets.all(16),
-                          itemCount: _productosFiltrados.length,
-                          itemBuilder: (context, index) {
-                            final producto = _productosFiltrados[index];
-                            return ProductoCard(
-                              producto: producto,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => DetalleProductoScreen(producto: producto),
-                                  ),
-                                );
-                              },
-                            );
-                          },
+                  const SizedBox(height: 18),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.indigo.withOpacity(0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
-                ),
-              ],
+                      ],
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Buscar producto',
+                        prefixIcon: Icon(Icons.search, color: Colors.indigo.shade300),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      ),
+                      onChanged: _buscar,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 24, top: 28, bottom: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_view_rounded, color: Colors.indigo.shade400, size: 22),
+                    const SizedBox(width: 8),
+                    Text('Catálogo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.indigo.shade700)),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: _productosFiltrados.isEmpty
+                  ? Center(child: Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: Text('No hay productos', style: TextStyle(color: Colors.indigo, fontSize: 18)),
+                    ))
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      itemCount: _productosFiltrados.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final producto = _productosFiltrados[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.indigo.withOpacity(0.07),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ProductoCard(
+                            producto: producto,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetalleProductoScreen(producto: producto),
+                                ),
+                              );
+                            },
+                          )); // <- Cierre correcto del Container
+                        },
+                      ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

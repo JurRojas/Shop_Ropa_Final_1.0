@@ -11,6 +11,7 @@ class Pago(Base):
     __tablename__ = "pagos"
     id = Column(Integer, primary_key=True, index=True)
     pedido_id = Column(Integer, ForeignKey("pedidos.id"), nullable=False)
+    tarjeta_id = Column(Integer, ForeignKey("tarjetas.id"), nullable=True)  # Nueva columna
     fecha_pago = Column(DateTime, default=datetime.utcnow)
     estado_pago_simulado = Column(String(50), default="exitoso")
 

@@ -5,7 +5,7 @@ import '../providers/carrito_provider.dart';
 
 class DetalleProductoScreen extends StatelessWidget {
   final Producto producto;
-  const DetalleProductoScreen({Key? key, required this.producto}) : super(key: key);
+  const DetalleProductoScreen({super.key, required this.producto});
 
   @override
   Widget build(BuildContext context) {
@@ -21,24 +21,64 @@ class DetalleProductoScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: producto.imagenUrl != null && producto.imagenUrl!.isNotEmpty
-                    ? Image.network(producto.imagenUrl!, height: 220, fit: BoxFit.cover)
-                    : Container(
-                        height: 220,
-                        color: Colors.indigo[50],
-                        child: Icon(Icons.image, size: 80, color: Colors.indigo),
+              Center(
+                child: Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.indigo.withOpacity(0.10),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
                       ),
+                    ],
+                    border: Border.all(color: Colors.indigo.shade100, width: 2),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: producto.imagenUrl != null && producto.imagenUrl!.isNotEmpty
+                        ? Image.network(producto.imagenUrl!, fit: BoxFit.cover, width: 260, height: 260)
+                        : Container(
+                            color: Colors.indigo[50],
+                            child: Icon(Icons.image, size: 100, color: Colors.indigo),
+                          ),
+                  ),
+                ),
               ),
-              SizedBox(height: 24),
-              Text(producto.nombre, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
-              SizedBox(height: 12),
-              Text(producto.descripcion, style: TextStyle(fontSize: 16, color: Colors.grey[800])),
-              SizedBox(height: 24),
-              Text('Precio', style: TextStyle(fontSize: 16, color: Colors.indigo)),
-              Text('\$${producto.precio.toStringAsFixed(2)}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
-              SizedBox(height: 32),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Icon(Icons.label_important, color: Colors.indigo.shade400),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(producto.nombre, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(Icons.description, color: Colors.indigo.shade300),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(producto.descripcion, style: TextStyle(fontSize: 16, color: Colors.grey[800])),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Icon(Icons.attach_money, color: Colors.green[700], size: 26),
+                  const SizedBox(width: 8),
+                  Text('Precio:', style: TextStyle(fontSize: 16, color: Colors.indigo)),
+                  const SizedBox(width: 8),
+                  Text('\$${producto.precio.toStringAsFixed(2)}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
+                ],
+              ),
+              const SizedBox(height: 32),
               ElevatedButton.icon(
                 onPressed: () {
                   Provider.of<CarritoProvider>(context, listen: false).agregar(producto);

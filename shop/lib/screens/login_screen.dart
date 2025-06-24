@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../providers/auth_provider.dart';
 import '../models/usuario.dart';
 import 'cliente_home.dart';
 import 'repartidor_home.dart';
 import 'admin_home.dart';
 import 'registro_screen.dart';
-import 'registro_repartidor_screen.dart';
-import 'registro_admin_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,17 +24,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     setState(() => _loading = true);
-    final usuario = await _authService.login(
+    final data = await _authService.loginConToken(
       _emailController.text,
       _contrasenaController.text,
     );
+    print('Respuesta login: ' + data.toString()); // DEBUG
     setState(() => _loading = false);
-    if (usuario != null) {
+    if (data != null && data['token'] != null) {
       setState(() => _error = null);
+      final usuario = Usuario.fromJson(data);
+      print('Tipo usuario: ' + usuario.tipo.toString()); // DEBUG
+      final token = data['token'];
+      Provider.of<AuthProvider>(context, listen: false).setUsuarioYToken(usuario, token);
       if (usuario.tipo == 'cliente') {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClienteHome()));
       } else if (usuario.tipo == 'repartidor') {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => RepartidorHome()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => RepartidorHome(repartidorId: usuario.id)));
       } else if (usuario.tipo == 'administrador') {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AdminHome()));
       }

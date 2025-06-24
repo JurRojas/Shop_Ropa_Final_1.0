@@ -5,6 +5,7 @@ Modelo SQLAlchemy y esquema Pydantic para clientes.
 from sqlalchemy import Column, Integer, String
 from app.db.database import Base
 from pydantic import BaseModel, Field, validator
+from sqlalchemy.orm import relationship
 
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -13,6 +14,8 @@ class Cliente(Base):
     direccion = Column(String(255), nullable=False)
     contrasena = Column(String(128), nullable=False)
     email = Column(String(120), unique=True, nullable=False)
+
+    tarjetas = relationship("Tarjeta", back_populates="cliente")
 
 class ClienteCreate(BaseModel):
     nombre: str = Field(..., min_length=2, max_length=100, description="Nombre del cliente")

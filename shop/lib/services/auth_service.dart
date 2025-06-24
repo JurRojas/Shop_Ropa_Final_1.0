@@ -18,6 +18,19 @@ class AuthService {
     return null;
   }
 
+  Future<Map<String, dynamic>?> loginConToken(String email, String contrasena) async {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'contrasena': contrasena}),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data;
+    }
+    return null;
+  }
+
   Future<bool> registrarCliente(String nombre, String direccion, String email, String contrasena) async {
     final response = await http.post(
       Uri.parse('http://localhost:8000/clientes/'),

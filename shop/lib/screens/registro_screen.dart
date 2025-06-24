@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../models/usuario.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});

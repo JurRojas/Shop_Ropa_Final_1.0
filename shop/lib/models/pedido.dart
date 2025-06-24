@@ -1,5 +1,3 @@
-import 'producto.dart';
-
 class Pedido {
   final int id;
   final int clienteId;
@@ -7,6 +5,7 @@ class Pedido {
   final double total;
   final DateTime fecha;
   final List<DetallePedido> detalles;
+  final int? repartidorId;
 
   Pedido({
     required this.id,
@@ -15,6 +14,7 @@ class Pedido {
     required this.total,
     required this.fecha,
     required this.detalles,
+    this.repartidorId,
   });
 
   factory Pedido.fromJson(Map<String, dynamic> json) {
@@ -25,6 +25,7 @@ class Pedido {
       total: (json['total'] as num).toDouble(),
       fecha: DateTime.parse(json['fecha']),
       detalles: (json['detalles'] as List<dynamic>).map((d) => DetallePedido.fromJson(d)).toList(),
+      repartidorId: json['repartidor_id'],
     );
   }
 }
