@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine, Base
 from app.routes import productos, pedidos, pagos, clientes, repartidores, login, administradores
+from app.models.token_activo import TokenActivo  # Importar el modelo TokenActivo
 
 # Crear tablas automáticamente si no existen
 def create_tables():
